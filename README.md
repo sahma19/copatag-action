@@ -1,4 +1,4 @@
-# copatag GitHub Action
+# Copatag GitHub Action
 
 This action generates a matrix of container image tags to be used by Copacetic for patching.
 
