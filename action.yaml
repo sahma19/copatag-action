@@ -1,0 +1,31 @@
+name: "copatag Action"
+description: "List container images and tags"
+inputs:
+  copatag_version:
+    description: "Version of copatag"
+    required: false
+    default: "0.1.2"
+  registry:
+    description: "Name of container registry"
+    required: true
+    default: ""
+outputs:
+  images:
+    description: ""
+    value: ${{ steps.copatag.outputs.images }}
+runs:
+  using: "composite"
+  steps:
+    - name: Docker run copatag action
+      id: copatag
+      shell: bash
+      run: |
+        socket="/var/run/docker.sock"
+        images=$(docker run \
+          --mount type=bind,source=${socket},target=/var/run/docker.sock \
+          --mount type=bind,source=${HOME}/.docker/config.json,target=/root/.docker/config.json \
+          -e GITHUB_OUTPUT \
+          ghcr.io/sahma19/copatag-action:v${{ inputs.copatag_version }} \
+          list ${{ inputs.registry }} --next-tag --output json)
+        images=$(echo "$images" | jq -c -r @json)
+        echo "images=$images" >> $GITHUB_OUTPUT
